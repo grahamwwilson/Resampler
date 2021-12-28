@@ -2,3 +2,4 @@
 *.cdat
 example
 *.root
+*.out
