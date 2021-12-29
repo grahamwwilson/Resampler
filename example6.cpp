@@ -69,6 +69,8 @@ TH1D* histdata = (TH1D*) new TH1D("histdata", "histdata", 1100, 0.0, 1.1);
 TH1D* histmc = (TH1D*) new TH1D("histmc", "histmc", 1100, 0.0, 1.1);
 TH1D* h = (TH1D*) new TH1D("h", "h", 1000, -1.15, -1.05);
 TH1D* hpz = (TH1D*) new TH1D("hpz", "hpz", 1000, -0.05, 0.05);
+TH1D* hKSpval = (TH1D*) new TH1D("hKSpval","hKSpval",1000,0.0,1.0);
+TH1D* hKSqval = (TH1D*) new TH1D("hKSqval","hKSqval",1000,0.0,1.0);
 
 std::ifstream inputDataFile("dataset1.cdat");
 if (inputDataFile) {
@@ -126,7 +128,6 @@ std::cout << " " << std::endl;
 
 // Form pooled data-set consisting of NDATA+NMC events. Take first NDATA events and NMC events from each
 std::vector<std::pair<double,double>> vpool;
-
 for (it = vdata.begin(); it != vdata.begin() + NDATA; ++it){
    vpool.push_back(*it);
 }
@@ -135,27 +136,45 @@ for (it = vmc.begin(); it != vmc.begin() + NMC; ++it){
 }
 std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::endl;
 
+// Do same for 1-d distribution for test
+std::vector<double> vpoolECM;
+std::vector<double>::const_iterator iter;
+for (iter = vdataECM.begin(); iter != vdataECM.begin() + NDATA; ++iter){
+   vpoolECM.push_back(*iter);
+}
+for (iter = vmcECM.begin(); iter != vmcECM.begin() + NMC; ++iter){
+   vpoolECM.push_back(*iter);
+}
+std::cout << "Chosen pooled vector of doubles has size " << vpoolECM.size()<< std::endl;
+
+
 // Now calculate some statistic for the sample that addresses the question of 
 // whether the distribution of the pairs labelled as data is consistent with the 
 // distribution of pairs labelled as MC.
 // Currently,
 // CHOICE = 1:  100.0 * (<sqrt(x1*x2)> - 1.0)
 // CHOICE = 2:  100.0 * (<x1-x2>)
-// We only need to do this for events labelled as data
+// CHOICE = 3:  KS-test p-value for ECM   (Does not use explicitly the "pair")
+// We only need to do this for events labelled as data in the case of 
+// the CHOICE=1,2 implementations.
 
 std::string variable;
 double Tobs,Ti;
 
 if(CHOICE==1){
-   variable = "ECM offset (%)";
+   variable = "Mean ECM offset (%)";
    Tobs = MyStatisticECM(NDATA,vpool);
 }
 else if (CHOICE==2){
-   variable = "scaled Ediff (%)";
+   variable = "Mean scaled Ediff (%)";
    Tobs = MyStatisticEdiff(NDATA,vpool);
+}   
+else if (CHOICE == 3){
+   variable = "ECM KS-test q-value";
+   Tobs = 1.0 - MyPooledTwoSampleKSTest(NDATA,NMC,vpoolECM);
 }
 
-std::cout << "Tobs: Mean " <<  variable << " (in per cent) of the data events " << std::fixed 
+std::cout << "Tobs: " <<  variable << std::fixed 
           << std::setprecision(12) << std::setw(16) <<Tobs << std::endl;
 std::cout << " " << std::endl;
 
@@ -172,7 +191,12 @@ for (int i=0; i<NPERMS; ++i){
 //   std::random_shuffle ( vpool.begin(), vpool.end() );
    
 // Use myrandom above seeded by FIRSTSEED
-   std::random_shuffle ( vpool.begin(), vpool.end(), myrandom );
+   if(CHOICE!=3){
+      std::random_shuffle ( vpool.begin(), vpool.end(), myrandom );
+   }
+   else{
+      std::random_shuffle ( vpoolECM.begin(), vpoolECM.end(), myrandom );   
+   }
  
    if(CHOICE==1){     
       Ti = MyStatisticECM(NDATA,vpool);
@@ -182,10 +206,16 @@ for (int i=0; i<NPERMS; ++i){
       Ti = MyStatisticEdiff(NDATA,vpool);   
       hpz->Fill(Ti);
    }
+   else if (CHOICE==3){
+      Ti = 1.0 - MyPooledTwoSampleKSTest(NDATA,NMC,vpoolECM);
+      hKSqval->Fill(Ti);
+      hKSpval->Fill(1.0-Ti);  
+   }
+   
    if(Ti >= Tobs)ntail +=1;  // Count events with statistic exceeding the correct data/MC partition.
 }
 
-std::cout << "Tobs: Mean " <<  variable << " (in per cent) of the data events " << std::fixed 
+std::cout << "Tobs: " <<  variable << std::fixed 
           << std::setprecision(12) << std::setw(16) <<Tobs << std::endl;
 
 
