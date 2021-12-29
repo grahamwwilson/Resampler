@@ -18,6 +18,7 @@ int main(int argc, char *argv[]){
 
 //std::srand ( unsigned ( std::time(0) ) );
 
+// Deal with input arguments
 std::cout << "argc = " << argc << std::endl;
 for (int i=0; i<argc;++i){
     std::cout << "argv [ " << i << "] = " << argv[i] << std::endl;
@@ -62,9 +63,8 @@ std::cout << "Max elements that can be inserted into a vector of doubles having 
           << sizeof( std::vector<double> ) << "' is: "
           << std::vector<double>().max_size() << std::endl;
 
+// Define histograms and histogram file
 TFile* f = (TFile*) new TFile("histos_Ediff.root","recreate");
-
-// Define some histograms
 TH1D* histdata = (TH1D*) new TH1D("histdata", "histdata", 1100, 0.0, 1.1);
 TH1D* histmc = (TH1D*) new TH1D("histmc", "histmc", 1100, 0.0, 1.1);
 TH1D* h = (TH1D*) new TH1D("h", "h", 1000, -1.15, -1.05);
@@ -72,6 +72,7 @@ TH1D* hpz = (TH1D*) new TH1D("hpz", "hpz", 1000, -0.05, 0.05);
 TH1D* hKSpval = (TH1D*) new TH1D("hKSpval","hKSpval",1000,0.0,1.0);
 TH1D* hKSqval = (TH1D*) new TH1D("hKSqval","hKSqval",1000,0.0,1.0);
 
+// Define input data sets
 std::ifstream inputDataFile("dataset1.cdat");
 if (inputDataFile) {
     int nheader;
@@ -116,8 +117,7 @@ for (it = vmc.begin(); it!=vmc.end(); ++it){
    histmc->Fill(sqrt(x1*x2));
 }
 
-// Conduct two-sample KS tests
-
+// Conduct two-sample KS tests (use all available events in samples)
 std::cout << " " << std::endl;
 std::cout << "Unbinned classic 2-sample KS Test of 1-d ECM distribution " << std::endl;
 double pKSECM = MyTwoSampleKSTest(vdataECM,vmcECM);
@@ -126,7 +126,9 @@ std::cout << "Unbinned classic 2-sample KS Test of 1-d Ediff distribution " << s
 double pKSEdiff = MyTwoSampleKSTest(vdataEdiff,vmcEdiff);
 std::cout << " " << std::endl;
 
-// Form pooled data-set consisting of NDATA+NMC events. Take first NDATA events and NMC events from each
+// Form pooled data-set consisting of NDATA+NMC events. Take first NDATA events and then NMC events from each
+// (Be careful about taking only a subset of GP files, as they are often sorted by collision time so will not be 
+//  a representative sub-sample from the parent distribution.)
 std::vector<std::pair<double,double>> vpool;
 for (it = vdata.begin(); it != vdata.begin() + NDATA; ++it){
    vpool.push_back(*it);
@@ -136,7 +138,7 @@ for (it = vmc.begin(); it != vmc.begin() + NMC; ++it){
 }
 std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::endl;
 
-// Do same for 1-d distribution for test
+// Do same for 1-d distribution for test of permutation test method with the KS test
 std::vector<double> vpoolECM;
 std::vector<double>::const_iterator iter;
 for (iter = vdataECM.begin(); iter != vdataECM.begin() + NDATA; ++iter){
@@ -147,20 +149,20 @@ for (iter = vmcECM.begin(); iter != vmcECM.begin() + NMC; ++iter){
 }
 std::cout << "Chosen pooled vector of doubles has size " << vpoolECM.size()<< std::endl;
 
-
 // Now calculate some statistic for the sample that addresses the question of 
-// whether the distribution of the pairs labelled as data is consistent with the 
-// distribution of pairs labelled as MC.
-// Currently,
+// whether the distribution for events labelled as data is consistent with the 
+// distribution labelled as MC. Current choices are:
 // CHOICE = 1:  100.0 * (<sqrt(x1*x2)> - 1.0)
 // CHOICE = 2:  100.0 * (<x1-x2>)
-// CHOICE = 3:  KS-test p-value for ECM   (Does not use explicitly the "pair")
+// CHOICE = 3:  KS-test q-value (1-pvalue) for ECM   (Does not use explicitly the "pair")
 // We only need to do this for events labelled as data in the case of 
-// the CHOICE=1,2 implementations.
+// the CHOICE=1,2 implementations (similar to Good 2000 Chapter 1) petri-dish example.
 
 std::string variable;
-double Tobs,Ti;
+double Tobs,Ti;    // NOTE: Adopt convention of Williams that larger value of 
+                   // each statistic labelled T, means worse agreement like a chi-squared value.
 
+// First evaluate the statistic, Tobs, without any shuffling where we have the correct labels for DATA and MC.
 if(CHOICE==1){
    variable = "Mean ECM offset (%)";
    Tobs = MyStatisticECM(NDATA,vpool);
@@ -171,13 +173,16 @@ else if (CHOICE==2){
 }   
 else if (CHOICE == 3){
    variable = "ECM KS-test q-value";
-   Tobs = 1.0 - MyPooledTwoSampleKSTest(NDATA,NMC,vpoolECM);
+   Tobs = 1.0 - MyPooledTwoSampleKSTest(NDATA,NMC,vpoolECM);  // so qvalue = 1.0 - pvalue for T convention consistency
 }
 
 std::cout << "Tobs: " <<  variable << std::fixed 
           << std::setprecision(12) << std::setw(16) <<Tobs << std::endl;
 std::cout << " " << std::endl;
 
+// Do the permutation test.
+// We randomly shuffle the pooled vector of length (NDATA+NMC) and 
+// call the first NDATA elements data.
 // Now do some shuffling. Let's get started using built in random number generator. 
 // See http://www.cplusplus.com/reference/algorithm/random_shuffle/
 
