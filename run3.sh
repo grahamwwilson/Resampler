@@ -9,9 +9,9 @@ g++ -g -o example example5.cpp `root-config --cflags --glibs`
 # Check symbolic links
 ls -l *.cdat
 
-NPERMS=${1:-99}
+NPERMS=${1:-999}
 NDATA=${2:-156231}
-NMC=${3:-10000000}
+NMC=${3:-1000000}
 FIRSTSEED=${4:-3141596}
 CHOICE=${5:-1}
 

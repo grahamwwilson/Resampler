@@ -68,10 +68,10 @@ These appear consistent and there seems no reason in our current model
 for them to be different.
   
 2. KS Tests.
-A) Of 10M event model.
+A) Of 10M event model with Run5.
    /home/graham/BeamSpectrumGenerator/10m/testbcg-3-4.cdat   
    
-Unbinned classic 2-sample KS Test of 1-d ECM distribution 
+Unbinned classic 2-sample KS Test of 1-d ECM distribution
 Sample sizes:                171349 10000000
 Effective number of points:  168462
 KS Test results. Dobs:       0.00250032
@@ -98,9 +98,54 @@ data mean that the dilution of power due to MC statistics implicit in the two-sa
 compared to the one-sample test (Neff=168462 instead of Neff=171349) is of 
 no significant concern.
 
-One significant caveat though is that the calculated KS test significance levels 
+One significant caveat is that the calculated KS test significance levels 
 are not to be trusted in our case where we have estimated parameters 
 with the same data. Nevertheless it is very reassuring that the two main 1-d physics 
 distributions are modelled very well in our case.
 Maybe the solution is to try fitting an independent "data-set" from Guinea-PIG?
+
+B) Of GP Run5 with GP Run 7.
+
+Unbinned classic 2-sample KS Test of 1-d ECM distribution 
+Sample sizes:                156231 171349
+Effective number of points:  81720.6
+KS Test results. Dobs:       0.00244745
+Pure z:                      0.699649
+Stephens T*:                 0.699944
+Asymptotic p-value           0.711819
+Finite approximation p-value 0.711329
  
+Unbinned classic 2-sample KS Test of 1-d Ediff distribution 
+Sample sizes:                156231 171349
+Effective number of points:  81720.6
+KS Test results. Dobs:       0.00346617
+Pure z:                      0.990868
+Stephens T*:                 0.991286
+Asymptotic p-value           0.279917
+Finite approximation p-value 0.279458
+
+So at this level - these GP data-sets are statistically consistent with each other. 
+Note that the two GP runs do share statistically identical beam input files.
+
+C) GP Run7 compared with 10M event model 3 (was fitted to GP Run 5). 
+   /home/graham/BeamSpectrumGenerator/10m/testbcg-3-4.cdat 
+   
+Unbinned classic 2-sample KS Test of 1-d ECM distribution 
+Sample sizes:                156231 10000000
+Effective number of points:  153828
+KS Test results. Dobs:       0.00196094
+Pure z:                      0.769097
+Stephens T*:                 0.769333
+Asymptotic p-value           0.595136
+Finite approximation p-value 0.594742
+ 
+Unbinned classic 2-sample KS Test of 1-d Ediff distribution 
+Sample sizes:                156231 10000000
+Effective number of points:  153828
+KS Test results. Dobs:       0.00256925
+Pure z:                      1.00768
+Stephens T*:                 1.00799
+Asymptotic p-value           0.261856
+Finite approximation p-value 0.261533
+
+Looks good!

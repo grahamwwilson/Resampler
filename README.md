@@ -44,3 +44,8 @@ Include KS tests for both of these 1-d distributions.
 
 ## example5.cpp and run2.sh
 Integrate statistic choice for permutation test into the script.
+
+## example6.cpp and run4.sh
+Change dataset names to be more generic 
+and do data to data comparisons here.
+
