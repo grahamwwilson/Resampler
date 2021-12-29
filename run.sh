@@ -4,9 +4,9 @@
 #
 date
 # Might as well recompile it here too
-g++ -g -o example example3.cpp `root-config --cflags --glibs`
+g++ -g -o example example4.cpp `root-config --cflags --glibs`
 
-NPERMS=${1:-999}
+NPERMS=${1:-9}
 NDATA=${2:-171349}
 NMC=${3:-1000000}
 FIRSTSEED=${4:-3141596}
