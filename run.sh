@@ -4,11 +4,11 @@
 #
 date
 # Might as well recompile it here too
-g++ -g -o example example2.cpp `root-config --cflags --glibs`
+g++ -g -o example example3.cpp `root-config --cflags --glibs`
 
-NDATA=${1:-171349}
-NMC=${2:-1000000}
-NPERMS=${3:-999}
+NPERMS=${1:-999}
+NDATA=${2:-171349}
+NMC=${3:-1000000}
 FIRSTSEED=${4:-3141596}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED}
