@@ -1,0 +1,106 @@
+0. Guinea-PIG Run 5 data-set statistics
+
+ nevents analyzed       171349
+  
+ Statistics for E1/Eb    
+ Mean       0.98913904932393037     
+ Rms         2.7734364669304113E-002
+ xmin       0.50413909599999995            -17.487328774497563     
+ xmax        1.0056895120000000            0.59674929905235519     
+ Rms/Mean    2.8038893710909864E-002
+ Mean % energy loss relative to    125.00000000000000       of    1.0860950676069625E-002
+  
+ Statistics for E2/Eb    
+ Mean       0.98922719138041004     
+ Rms         2.7584333849204043E-002
+ xmin       0.52521880799999998            -16.821446039517070     
+ xmax        1.0045512720000001            0.55553564220048002     
+ Rms/Mean    2.7884730716623025E-002
+ Mean % energy loss relative to    125.00000000000000       of    1.0772808619589958E-002
+  
+ Statistics for ECM/2Eb  
+ Mean       0.98898991225956911     
+ Rms         2.0826909313216679E-002
+ xmin       0.71006053317330908            -13.392739887202202     
+ xmax        1.0047347479802560            0.75598522487900988     
+ Rms/Mean    2.1058768198790760E-002
+ Mean % energy loss relative to    250.00000000000000       of    1.1010087740430885E-002
+  
+ Statistics for x1-x2    
+ Mean       -8.8142056457872391E-005
+ Rms         3.7775181625678438E-002
+ xmin      -0.49595386399999997            -13.126759438436887     
+ xmax       0.44830048000000000             11.869926305044070     
+  
+ Correlation Coefficient for E1/Eb     with E2/Eb     of    6.7399693443821435E-002
+ Correlation Coefficient for E1/Eb     with ECM/2Eb   of   0.73229388333948076     
+ Correlation Coefficient for E1/Eb     with x1-x2     of   0.68497854702533900     
+ Correlation Coefficient for E2/Eb     with ECM/2Eb   of   0.72829620619375490     
+ Correlation Coefficient for E2/Eb     with x1-x2     of  -0.68073918023470292     
+ Correlation Coefficient for ECM/2Eb   with x1-x2     of    5.8276334382791591E-003
+
+1. Reference MINUIT fit.
+
+Use reweightfitg-0-0-Alt1.out
+as the reference fit to Run5 symmetric data. 
+This is with the 10 parameter fit, using "10m/testbc-1-0.dat" as the RW file.
+
+ FCN=   10198.91     FROM MIGRAD    STATUS=CONVERGED    505 CALLS      507 TOTAL
+                     EDM=  0.78E-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1    ppeak      0.19189       0.14593E-01   0.43572E-03   0.33184    
+   2    pbody      0.29734       0.89331E-02   0.39134E-03  -0.62262E-01
+   3    meanb      0.22823E-01   0.36967E-03   0.60183E-04   0.20205    
+   4    rmsb       0.38548E-01   0.28916E-03   0.84137E-04  -0.65834    
+   5    meana      0.15837E-01   0.46283E-03   0.60833E-04   -2.3464    
+   6    rmsa       0.29153E-01   0.36732E-03   0.92013E-04    1.2408    
+   7    dmu1       0.11717E-01   0.85980E-02   0.15309E-04  -0.89502    
+   8    s1         0.18836E-02   0.55221E-05   0.24345E-03  -0.36592E-01
+   9    dmu2       0.23557E-01   0.71617E-02   0.12265E-04    5.9771    
+  10    s2         0.15012E-02   0.45430E-05   0.22342E-03   0.18553   
+
+  Notice dmu1 is 0.0117e-3 = +11.7 +- 8.6 ppm
+         dmu2 is             +23.6 +- 7.2 ppm   
+Hmm - maybe we should only fit with dmu1=dmu2? 
+These appear consistent and there seems no reason in our current model 
+for them to be different.
+  
+2. KS Tests.
+A) Of 10M event model.
+   /home/graham/BeamSpectrumGenerator/10m/testbcg-3-4.cdat   
+   
+Unbinned classic 2-sample KS Test of 1-d ECM distribution 
+Sample sizes:                171349 10000000
+Effective number of points:  168462
+KS Test results. Dobs:       0.00250032
+Pure z:                      1.02624
+Stephens T*:                 1.02654
+Asymptotic p-value           0.24293
+Finite approximation p-value 0.242632
+ 
+Unbinned classic 2-sample KS Test of 1-d Ediff distribution 
+Sample sizes:                171349 10000000
+Effective number of points:  168462
+KS Test results. Dobs:       0.00210662
+Pure z:                      0.864646
+Stephens T*:                 0.864899
+Asymptotic p-value           0.443346
+Finite approximation p-value 0.442971
+
+Conclusion: At the 1-d distribution level the ECM and pz distributions 
+are perfectly well described by the fitted model as evidenced by 
+the KS test p-values being acceptable.
+This test could have been done more powerfully using the 1-sample test 
+(necessitating some integrals). However the factor of 58 more MC statistics than 
+data mean that the dilution of power due to MC statistics implicit in the two-sample test 
+compared to the one-sample test (Neff=168462 instead of Neff=171349) is of 
+no significant concern.
+
+One significant caveat though is that the calculated KS test significance levels 
+are not to be trusted in our case where we have estimated parameters 
+with the same data. Nevertheless it is very reassuring that the two main 1-d physics 
+distributions are modelled very well in our case.
+Maybe the solution is to try fitting an independent "data-set" from Guinea-PIG?
+ 

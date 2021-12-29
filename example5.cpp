@@ -118,10 +118,10 @@ for (it = vmc.begin(); it!=vmc.end(); ++it){
 
 std::cout << " " << std::endl;
 std::cout << "Unbinned classic 2-sample KS Test of 1-d ECM distribution " << std::endl;
-double pKSECM = MyTwoSampleKSTest(NDATA,NMC,vdataECM,vmcECM);
+double pKSECM = MyTwoSampleKSTest(vdataECM,vmcECM);
 std::cout << " " << std::endl;
 std::cout << "Unbinned classic 2-sample KS Test of 1-d Ediff distribution " << std::endl;
-double pKSEdiff = MyTwoSampleKSTest(NDATA,NMC,vdataEdiff,vmcEdiff);
+double pKSEdiff = MyTwoSampleKSTest(vdataEdiff,vmcEdiff);
 std::cout << " " << std::endl;
 
 // Form pooled data-set consisting of NDATA+NMC events. Take first NDATA events and NMC events from each

@@ -57,8 +57,13 @@ std::cout << "Mean scaled Ediff (in %) for data labels " << std::fixed
 return T;
 }
 
-double MyTwoSampleKSTest(const int n1, const int n2, std::vector<double>& v1, std::vector<double>& v2){
+double MyTwoSampleKSTest(std::vector<double>& v1, std::vector<double>& v2){
+
 // Similar code to kstests.h in NR3, p738
+
+unsigned int n1 = unsigned(v1.size());
+unsigned int n2 = unsigned(v2.size());
+
 std::sort(v1.begin(),v1.end());
 std::sort(v2.begin(),v2.end());
 
