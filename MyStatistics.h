@@ -25,7 +25,7 @@ for (it = vpool.begin(); it!= vpool.begin() + NDATA; ++it){
 T = T/double(NDATA);
 T = 100.0*(T - 1.0);  // difference from 1.0 in per cent units
 
-std::cout << "Mean scaled sqrt(s) difference (in %) for data labels " << std::fixed 
+std::cout << "Mean ECM offset (in %) for data labels " << std::fixed 
           << std::setprecision(12) << std::setw(16) <<T << " based on " << ncheck << " events " << std::endl;
           
 return T;
@@ -51,7 +51,7 @@ for (it = vpool.begin(); it!= vpool.begin() + NDATA; ++it){
 T = T/double(NDATA);
 T = 100.0*(T - 0.0);  // difference from 0.0 in per cent units
 
-std::cout << "Mean scaled energy difference (in %) for data labels " << std::fixed 
+std::cout << "Mean scaled Ediff (in %) for data labels " << std::fixed 
           << std::setprecision(12) << std::setw(16) <<T << " based on " << ncheck << " events " << std::endl;
           
 return T;

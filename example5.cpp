@@ -39,7 +39,8 @@ unsigned int FIRSTSEED;
 FIRSTSEED = atoi(argv[4]);
 std::cout << "FIRSTSEED set to " << FIRSTSEED << std::endl;
 
-int CHOICE=1;
+int CHOICE;
+CHOICE = atoi(argv[5]);
 std::cout << "CHOICE set to " << CHOICE << std::endl;
 
 std::srand(FIRSTSEED);
