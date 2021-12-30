@@ -58,3 +58,6 @@ given N^2 complexity on even the smallest problem size currently considered.
 About 16 minutes per permutation on laptop with Run5/Run7 comparison 
 with about about 160k events in each sample.
 Room for optimization/parallelization/batchification.
+
+## randomize.cpp and randomize.sh
+Extract random subset from a .cdat file.
