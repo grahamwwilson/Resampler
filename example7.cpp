@@ -193,7 +193,8 @@ std::cout << " " << std::endl;
 int ntail = 0;
 
 for (int i=0; i<NPERMS; ++i){
-   if(i%100 ==0)std::cout << "Permutation " << i << std::endl;
+//   if(i%100 ==0)std::cout << "Permutation " << i << std::endl;
+   std::cout << "Permutation " << i << std::endl;   
 // FIXME - more control over the randomness preferred. 
 
 // Use built-in random generator  
