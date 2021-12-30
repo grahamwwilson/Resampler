@@ -51,3 +51,10 @@ Change dataset names to be more generic and do data to data comparisons here.
 ## example6.cpp and run5.sh
 Now also include permutation test for 1-d ECM KS test - more as a verification/validation 
 of the permutation method in the context of a statistic with well known properties.
+
+## example7.cpp and run7.sh
+First implementation of energy statistic. Rather slow as expected 
+given N^2 complexity on even the smallest problem size currently considered. 
+About 16 minutes per permutation on laptop with Run5/Run7 comparison 
+with about about 160k events in each sample.
+Room for optimization/parallelization/batchification.
