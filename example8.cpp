@@ -3,7 +3,8 @@
 // to speed things up.
 //
 #include <iostream>
-#include <algorithm>  // std::random_shuffle
+#include <random>
+#include <algorithm>  // std::shuffle
 #include <fstream>
 #include <string>
 #include <iomanip>
@@ -11,18 +12,16 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <ctime>
-#include <cstdlib>      // std::rand, std::srand
+//#include <cstdlib>      // std::rand, std::srand
 #include "MyStatistics.h"
-#include "MyOmp.h"      // OpenMP
+typedef std::mt19937 RandomNumberGenerator;
+//typedef std::ranlux24 RandomNumberGenerator;
 
-// random generator function:
-int myrandom (int i) { return std::rand()%i;}
+#include "MyOmp.h"      // OpenMP
 
 int main(int argc, char *argv[]){
 
 checkomp();   // Check whether OpenMP was included in the compilation
-
-//std::srand ( unsigned ( std::time(0) ) );
 
 // Deal with input arguments
 std::cout << "argc = " << argc << std::endl;
@@ -49,11 +48,10 @@ std::cout << "FIRSTSEED set to " << FIRSTSEED << std::endl;
 int CHOICE;
 CHOICE = atoi(argv[5]);
 std::cout << "CHOICE set to " << CHOICE << std::endl;
-
-std::srand(FIRSTSEED);
-int random_variable = std::rand();
-std::cout << "First random value on [0 " << RAND_MAX << "]: " 
-          << random_variable << '\n';
+          
+// Set up Mersenne-Twister based RNG
+unsigned long int myseed = FIRSTSEED;
+RandomNumberGenerator rng(myseed);
 
 std::cout << "int\t"
               << std::numeric_limits<int>::lowest() << '\t'
@@ -198,21 +196,17 @@ std::cout << " " << std::endl;
 // Do the permutation test.
 // We randomly shuffle the pooled vector of length (NDATA+NMC) and 
 // call the first NDATA elements data.
-// Now do some shuffling. Let's get started using built in random number generator. 
-// See http://www.cplusplus.com/reference/algorithm/random_shuffle/
+// Now do some shuffling. srand stuff now deleted.
 
 int ntail = 0;
 
 for (int i=0; i<NPERMS; ++i){
 //   if(i%100 ==0)std::cout << "Permutation " << i << std::endl;
    std::cout << "Permutation " << i << std::endl;   
-// FIXME - more control over the randomness preferred. 
 
-// Use built-in random generator  
-//   std::random_shuffle ( vpool.begin(), vpool.end() );
-   
-// Use myrandom above seeded by FIRSTSEED
-   std::random_shuffle ( vpool.begin(), vpool.end(), myrandom );
+// C++11 version. Now using Mersenne-Twister
+// https://stackoverflow.com/questions/6926433/how-to-shuffle-a-stdvector 
+   std::shuffle ( std::begin(vpool), std::end(vpool), rng ); 
  
    if(CHOICE==1){     
       Ti = MyStatisticECM(NDATA,vpool);
