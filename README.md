@@ -64,6 +64,10 @@ Extract random subset from a .cdat file.
 
 ## example8.cpp
 Implement OpenMP parallelization of the permutation test.
-Execution time for 9999 permutations of ICHOICE=4 with 1000*1000 is about 16s 
-with 12 threads. Looks like standard serial compilation gives 352s.
-Some of this may be the optimization level. 
+Execution time for 9999 permutations of ICHOICE=4 
+with NxM= 1000*1000 is 15.5s with 12 threads on Ubuntu laptop.
+Standard serial compilation took 356s. Some of this may be the 
+compiler optimization level. Redo with the same O1 optimization => 111.2s.
+So OpenMP speed-up of 7.2, and speed-up factor of 23 wrt yesterday.
+The optimization part looks like a factor of 3.2.
+O1 is minimal optimization - so may be some room for improvement here too.

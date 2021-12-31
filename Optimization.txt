@@ -1,0 +1,15 @@
+Using 12 threads.
+
+graham:~/Resampler$ ./run11.sh >run11-O3.out
+177.61user 0.93system 0:15.22elapsed 1172%CPU (0avgtext+0avgdata 228064maxresident)k
+0inputs+2416outputs (0major+29334minor)pagefaults 0swaps
+graham:~/Resampler$ ./run11.sh >run11-O2.out
+184.45user 0.16system 0:15.72elapsed 1174%CPU (0avgtext+0avgdata 228060maxresident)k
+0inputs+2408outputs (0major+29370minor)pagefaults 0swaps
+graham:~/Resampler$ ./run11.sh >run11-O1.out
+188.80user 0.20system 0:16.53elapsed 1143%CPU (0avgtext+0avgdata 227496maxresident)k
+0inputs+2408outputs (0major+29339minor)pagefaults 0swaps
+graham:~/Resampler$ ./run11.sh >run11-O0.out
+593.03user 0.63system 0:52.04elapsed 1140%CPU (0avgtext+0avgdata 226876maxresident)k
+0inputs+2432outputs (0major+29331minor)pagefaults 0swaps
+

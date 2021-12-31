@@ -6,13 +6,13 @@
 #
 date
 # Might as well recompile it here too
-#g++ -g -o example8 example8.cpp `root-config --cflags --glibs`
+g++ -g -O1 -o example8-serial example8.cpp `root-config --cflags --glibs`
 
-export OMP_NUM_THREADS=12
+export OMP_NUM_THREADS=6
 
 echo 'OMP_NUM_THREADS: '$OMP_NUM_THREADS
 
-g++ -g -O1 -fopenmp -o example8 example8.cpp `root-config --cflags --glibs`
+#g++ -g -O1 -fopenmp -o example8 example8.cpp `root-config --cflags --glibs`
 
 # Set up symbolic links used in code.
 VDATA=${1:-1}
@@ -40,7 +40,7 @@ FIRSTSEED=${6:-153456}
 CHOICE=${7:-4}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,CHOICE) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${CHOICE}
-time ./example8 ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${CHOICE}
+time ./example8-serial ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${CHOICE}
 
 date
 
