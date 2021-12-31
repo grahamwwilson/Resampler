@@ -51,7 +51,7 @@ std::cout << "CHOICE set to " << CHOICE << std::endl;
           
 // Set up Mersenne-Twister based RNG
 unsigned long int myseed = FIRSTSEED;
-RandomNumberGenerator rng(myseed);
+//RandomNumberGenerator rng(myseed);
 
 std::cout << "int\t"
               << std::numeric_limits<int>::lowest() << '\t'
@@ -143,7 +143,7 @@ for (it = vmc.begin(); it != vmc.begin() + NMC; ++it){
 std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::endl;
 
 // Also make a copy. May be useful later for checking the unshuffled version.
-std::vector<std::pair<double,double>> vpoolcopy(vpool);
+//std::vector<std::pair<double,double>> vpoolcopy(vpool);
 
 // Now calculate some statistic for the sample that addresses the question of 
 // whether the distribution for events labelled as data is consistent with the 
@@ -200,34 +200,56 @@ std::cout << " " << std::endl;
 
 int ntail = 0;
 
+int nthreads;
+int taskid;
+
+#pragma omp parallel for
+
 for (int i=0; i<NPERMS; ++i){
 //   if(i%100 ==0)std::cout << "Permutation " << i << std::endl;
-   std::cout << "Permutation " << i << std::endl;   
 
-// C++11 version. Now using Mersenne-Twister
+// For reproducibility, especially with multi-threading, reseed the RNG for each permutation.
+   RandomNumberGenerator rng(myseed + i);
+   
+// Also to avoid race conditions, we first copy the original vector  
+   std::vector<std::pair<double,double>> vpoolcopy(vpool);   
+
+// Now we randomly shuffle the copy to get a permutation instance. 
+// This is the C++11 shuffle rather than random_shuffle. 
+// RNG used is the Mersenne-Twister
 // https://stackoverflow.com/questions/6926433/how-to-shuffle-a-stdvector 
-   std::shuffle ( std::begin(vpool), std::end(vpool), rng ); 
+   std::shuffle ( std::begin(vpoolcopy), std::end(vpoolcopy), rng ); 
+ 
+// Use the shuffled copy to evaluate the desired statistics
+// I suspect histogramming is not thread safe - still need to test it.
  
    if(CHOICE==1){     
-      Ti = MyStatisticECM(NDATA,vpool);
+      Ti = MyStatisticECM(NDATA,vpoolcopy);
       h->Fill(Ti);
    }
    else if (CHOICE==2){
-      Ti = MyStatisticEdiff(NDATA,vpool);   
+      Ti = MyStatisticEdiff(NDATA,vpoolcopy);   
       hpz->Fill(Ti);
    }
    else if (CHOICE == 4){
-      Ti = MyEnergyStatistic(NDATA,vpool);
+      Ti = MyEnergyStatistic(NDATA,vpoolcopy);
    }
    else if (CHOICE == 5){
       const int itype=1;
-      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpool);
+      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }
    else if (CHOICE == 6){
       const int itype=2;
-      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpool);
+      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }        
    if(Ti >= Tobs)ntail +=1;  // Count events with statistic exceeding the correct data/MC partition.
+
+   nthreads = omp_get_num_threads();
+   taskid = omp_get_thread_num();
+//   #pragma omp critical   
+   { 
+      std::cout << "Permutation " << i << " threads " << nthreads << " task " << taskid << std::endl;
+   }
 }
 
 std::cout << "Tobs: " <<  variable << std::fixed 

@@ -61,3 +61,9 @@ Room for optimization/parallelization/batchification.
 
 ## randomize.cpp and randomize.sh
 Extract random subset from a .cdat file.
+
+## example8.cpp
+Implement OpenMP parallelization of the permutation test.
+Execution time for 9999 permutations of ICHOICE=4 with 1000*1000 is about 16s 
+with 12 threads. Looks like standard serial compilation gives 352s.
+Some of this may be the optimization level. 
