@@ -18,7 +18,7 @@ typedef std::mt19937 RandomNumberGenerator;
 //typedef std::ranlux24 RandomNumberGenerator;
 
 #include "MyOmp.h"                // OpenMP
-#include "EstimatorDefinitions.h" // 
+#include "EstimatorDefinitions.h" // Estimator enum, EstimatorNames and string->enum conversion function
 
 int main(int argc, char *argv[]){
 
@@ -46,19 +46,20 @@ unsigned int FIRSTSEED;
 FIRSTSEED = atoi(argv[4]);
 std::cout << "FIRSTSEED set to " << FIRSTSEED << std::endl;
 
-int CHOICE;
-CHOICE = atoi(argv[5]);
+std::string ESTIMATORCHOICE = argv[5];
+std::cout << "ESTIMATORCHOICE " << ESTIMATORCHOICE << std::endl;
+
+Estimator estimator = convert(ESTIMATORCHOICE);
+std::cout << "Estimator enum set to " << estimator << std::endl;
+
+int CHOICE=3;
 std::cout << "CHOICE set to " << CHOICE << std::endl;
           
 // Set up Mersenne-Twister based RNG
 unsigned long int myseed = FIRSTSEED;
 //RandomNumberGenerator rng(myseed);
 
-std::cout << "int\t"
-              << std::numeric_limits<int>::lowest() << '\t'
-              << std::numeric_limits<int>::max() << '\n';
-
-int start_time = clock();
+int start_time = clock();   // Not so useful with multithreading ...
 
 std::vector<std::pair<double,double>> vdata,vmc;
 std::vector<double> vdataECM, vmcECM;
@@ -147,10 +148,10 @@ std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::en
 // Now calculate some statistic for the sample that addresses the question of 
 // whether the distribution for events labelled as data is consistent with the 
 // distribution labelled as MC. 
-// Current choices are defined by the Names string below.
+// Current choices are defined by the EstimatorDefinitions.h include file.
 // 
 // We only need to do this for events labelled as data in the case of 
-// the CHOICE=0,1 implementations (similar to Good 2000 Chapter 1) petri-dish example.
+// the MeanECM, MeanEdiff implementations (similar to Good 2000 Chapter 1) petri-dish example.
 
 double Tobs,Ti;    // NOTE: Adopt convention of Williams that larger value of 
                    // each statistic labelled T, means worse agreement like a chi-squared value.
@@ -198,25 +199,25 @@ for (unsigned int i=0; i<NPERMS; ++i){
 // desired statistic using the permutation test.
 // I suspect histogramming is not thread safe - still need to test it.
  
-   if(CHOICE==0){     
+   if(estimator == MeanECM){     
       Ti = MyStatisticECM(NDATA,vpoolcopy);
       h->Fill(Ti);
    }
-   else if (CHOICE==1){
+   else if (estimator == MeanEdiff){
       Ti = MyStatisticEdiff(NDATA,vpoolcopy);   
       hpz->Fill(Ti);
    }
-   else if (CHOICE == 2){
+   else if (estimator == Energy){
       Ti = MyEnergyStatistic(NDATA,vpoolcopy);
    }
-   else if (CHOICE == 3){
+   else if (estimator == Energy2){
       Ti = MySecondEnergyStatistic(NDATA,vpoolcopy);
    }    
-   else if (CHOICE == 4){
+   else if (estimator == KSECM){
       const int itype=1;
       Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }
-   else if (CHOICE == 5){
+   else if (estimator == KSEdiff){
       const int itype=2;
       Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }
@@ -261,7 +262,7 @@ for (unsigned int i=0; i<NPERMS; ++i){
 
 std::cout << "nwaits " << nwaits << std::endl;
 
-std::cout << "Tobs: " <<  Names[CHOICE] << std::fixed 
+std::cout << "Tobs: " <<  EstimatorNames[estimator] << std::fixed 
           << std::setprecision(12) << std::setw(16) <<Tobs << std::endl;
 
 
