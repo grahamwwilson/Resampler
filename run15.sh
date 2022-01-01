@@ -1,8 +1,6 @@
 #!/bin/sh
 #
-# Add CHOICE as an option
-# Here we no longer make the data/MC distinction 
-# comparing simply GP Run5 with GP Run7.
+# Here we no longer necessarily make the data/MC distinction
 #
 date
 # Might as well recompile it here too
@@ -12,7 +10,7 @@ export OMP_NUM_THREADS=6
 
 echo 'OMP_NUM_THREADS: '$OMP_NUM_THREADS
 
-g++ -g -O1 -fopenmp -o example example9.cpp `root-config --cflags --glibs`
+g++ -g -O1 -fopenmp -o example example10.cpp `root-config --cflags --glibs`
 
 # Set up symbolic links used in code.
 VDATA=${1:-1}
@@ -30,15 +28,15 @@ ln -s mcsubset${VMC}.cdat dataset2.cdat
 # Check symbolic links
 ls -l *.cdat
 
-# Should be slightly quicker if the smaller file (Run7) 
-# is set as the first "DATA" one.
+# Can be quicker for some estimators if the smaller file 
+# is set as the first "DATA" set.
 
 NPERMS=${3:-1000}
 NDATA=${4:-1000}
 NMC=${5:-1000}
 FIRSTSEED=${6:-153456}
-# Now specify statistic choice using Estimators enum with corresponding EstimatorNames string
-ESTIMATOR=${7:-Energy2}
+# Now specify statistic choice using Estimator enum with corresponding EstimatorNames string
+ESTIMATOR=${7:-Energy}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,ESTIMATOR) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
 time ./example ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}

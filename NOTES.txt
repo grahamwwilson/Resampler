@@ -1,0 +1,3 @@
+In order to redirect stderr (eg. the time output) into stdout, do as follows.
+
+./run15.sh >run15.out 2>&1
