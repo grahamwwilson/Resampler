@@ -6,6 +6,7 @@ double MyTwoSampleKSTest(const int NDATA, const int NMC, std::vector<double>& v1
 double MyPooledTwoSampleKSTest(const int n1, const int n2, std::vector<double>& v);
 double MyPooledTwoSampleKSTest(const int itype, const int n1, const int n2, std::vector<std::pair<double,double>>& v);
 double MyEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v);
+double MySecondEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v);
 
 double MyEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v){
 
@@ -46,8 +47,6 @@ for (it1 = v1.begin(); it1!= v1.end(); ++it1) {    //Hopefully this still works.
     if(icount%10000==0)std::cout << "Loop " << icount << " in MyEnergyStatistic " << std::endl;
     for (it2 = it1+1; it2!= v1.end(); ++it2) {
         std::pair<double,double> pair2 = *it2;
-//        double dx1 = pair1.first - pair2.first;     // x1 distance
-//        double dx2 = pair1.second - pair2.second;   // x2 distance
         double dx1 = x11 - pair2.first;     // x1 distance
         double dx2 = x21 - pair2.second;    // x2 distance        
         double weight = exp(FACTOR*(dx1*dx1 + dx2*dx2));
@@ -55,8 +54,6 @@ for (it1 = v1.begin(); it1!= v1.end(); ++it1) {    //Hopefully this still works.
     }
     for (it3 = v2.begin(); it3!= v2.end(); ++it3) {
         std::pair<double,double> pair3 = *it3;
-//        double dx1 = pair1.first - pair2.first;     // x1 distance
-//        double dx2 = pair1.second - pair2.second;   // x2 distance
         double dx1 = x11 - pair3.first;     // x1 distance
         double dx2 = x21 - pair3.second;    // x2 distance        
         double weight = exp(FACTOR*(dx1*dx1 + dx2*dx2));
@@ -68,6 +65,85 @@ valuexx = xxsum/(double(N)*double(N));
 valuexy = -xysum/(double(N)*double(M));
 value = valuexx + valuexy;
 std::cout << "MyEnergyStatistic evaluates to " << value << " xx: " << valuexx << " xy: " << valuexy << std::endl;
+ 
+return value; 
+}
+
+double MySecondEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v){
+
+// First separate the pooled vector into the two separate ones of 
+// length N for data and of length M for MC
+std::vector<std::pair<double,double>> v1,v2;
+v1.assign(v.begin(), v.begin()+N);
+v2.assign(v.begin()+N, v.end());
+unsigned int M = unsigned(v2.size());
+
+// Implement equation 3.1 of Aslan and Zech NIM paper.
+// "Statistical energy as a tool for binning-free, multivariate 
+//  goodness-of-fit tests, two-sample comparison and unfolding"
+// NIM A537 (2005) 626-636.
+//
+// This is rather nasty in terms of computational complexity
+// The xxsum loop has N(N-1)/2 summands
+// The xysum part has NM summands
+// So in total N(M + (N-1)/2 )
+
+std::vector<std::pair<double,double>>::const_iterator it1;
+std::vector<std::pair<double,double>>::const_iterator it2;
+std::vector<std::pair<double,double>>::const_iterator it3;
+
+// Try Gaussian distance function
+const double RMS = 0.005;                 // Try 0.5%
+const double FACTOR = -0.5/(RMS*RMS);
+double value,valuexx,valuexy,valueyy;
+
+double xxsum = 0.0;
+double xysum = 0.0;
+double yysum = 0.0;
+int icount=0;
+for (it1 = v1.begin(); it1!= v1.end(); ++it1) {    //Hopefully this still works.
+    std::pair<double,double> pair1 = *it1;
+    double x11 = pair1.first;
+    double x21 = pair1.second;
+    icount +=1;
+    if(icount%10000==0)std::cout << "xx+xy loop " << icount << " in MySecondEnergyStatistic " << std::endl;
+    for (it2 = it1+1; it2!= v1.end(); ++it2) {
+        std::pair<double,double> pair2 = *it2;
+        double dx1 = x11 - pair2.first;     // x1 distance
+        double dx2 = x21 - pair2.second;    // x2 distance        
+        double weight = exp(FACTOR*(dx1*dx1 + dx2*dx2));
+        xxsum += weight;
+    }
+    for (it3 = v2.begin(); it3!= v2.end(); ++it3) {
+        std::pair<double,double> pair3 = *it3;
+        double dx1 = x11 - pair3.first;     // x1 distance
+        double dx2 = x21 - pair3.second;    // x2 distance        
+        double weight = exp(FACTOR*(dx1*dx1 + dx2*dx2));
+        xysum += weight;
+    }    
+}
+
+icount = 0;
+for (it1 = v2.begin(); it1!= v2.end()-1; ++it1) {    //Hopefully this still works.
+    std::pair<double,double> pair1 = *it1;
+    double x11 = pair1.first;
+    double x21 = pair1.second;
+    icount +=1;
+    if(icount%10000==0)std::cout << "yy loop " << icount << " in MySecondEnergyStatistic " << std::endl;
+    for (it2 = it1+1; it2!= v2.end(); ++it2) {
+        std::pair<double,double> pair2 = *it2;
+        double dx1 = x11 - pair2.first;     // x1 distance
+        double dx2 = x21 - pair2.second;    // x2 distance        
+        double weight = exp(FACTOR*(dx1*dx1 + dx2*dx2));
+        yysum += weight;
+    }
+}    
+
+valuexx = xxsum/(double(N)*double(N-1));
+valuexy = -xysum/(double(N)*double(M));
+valueyy = yysum/(double(M)*double(M-1));
+value = valuexx + valuexy + valueyy ;
+std::cout << "MySecondEnergyStatistic evaluates to " << value << " xx: " << valuexx << " xy: " << valuexy << " yy: " << valueyy << std::endl;
  
 return value; 
 }
