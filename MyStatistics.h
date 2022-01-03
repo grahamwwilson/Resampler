@@ -61,10 +61,12 @@ for (it1 = v1.begin(); it1!= v1.end(); ++it1) {    //Hopefully this still works.
     }    
 }
 
-valuexx = xxsum/(double(N)*double(N));
+valuexx = xxsum/(double(N)*double(N));   
 valuexy = -xysum/(double(N)*double(M));
 value = valuexx + valuexy;
-std::cout << "MyEnergyStatistic evaluates to " << value << " xx: " << valuexx << " xy: " << valuexy << std::endl;
+std::cout << "MyEnergyStatistic evaluates to " 
+          << std::fixed << std::setprecision(12)
+          << value << " xx: " << valuexx << " xy: " << valuexy << std::endl;
  
 return value; 
 }
@@ -78,15 +80,17 @@ v1.assign(v.begin(), v.begin()+N);
 v2.assign(v.begin()+N, v.end());
 unsigned int M = unsigned(v2.size());
 
-// Implement equation 3.1 of Aslan and Zech NIM paper.
+// Implement equation 2.4 of Aslan and Zech NIM paper.
 // "Statistical energy as a tool for binning-free, multivariate 
 //  goodness-of-fit tests, two-sample comparison and unfolding"
 // NIM A537 (2005) 626-636.
+// Here we include all terms following eqn 2.4 rather than 3.1
 //
 // This is rather nasty in terms of computational complexity
 // The xxsum loop has N(N-1)/2 summands
 // The xysum part has NM summands
-// So in total N(M + (N-1)/2 )
+// The yysum part has M(M-1)/2 summands
+// So in total N( M + (N-1)/2 ) + M(M-1)/2 when we include the third ""yy" term
 
 std::vector<std::pair<double,double>>::const_iterator it1;
 std::vector<std::pair<double,double>>::const_iterator it2;
@@ -143,7 +147,9 @@ valuexx = xxsum/(double(N)*double(N-1));
 valuexy = -xysum/(double(N)*double(M));
 valueyy = yysum/(double(M)*double(M-1));
 value = valuexx + valuexy + valueyy ;
-std::cout << "MySecondEnergyStatistic evaluates to " << value << " xx: " << valuexx << " xy: " << valuexy << " yy: " << valueyy << std::endl;
+std::cout << "MySecondEnergyStatistic evaluates to " 
+          << std::fixed << std::setprecision(12) 
+          << value << " xx: " << valuexx << " xy: " << valuexy << " yy: " << valueyy << std::endl;
  
 return value; 
 }

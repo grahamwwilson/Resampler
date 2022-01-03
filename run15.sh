@@ -14,7 +14,7 @@ g++ -g -O1 -fopenmp -o example example10.cpp `root-config --cflags --glibs`
 
 # Set up symbolic links used in code.
 VDATA=${1:-1}
-VMC=${2:-1}
+VMC=${2:-0}
 
 echo 'VDATA '${VDATA}
 echo 'VMC   '${VMC}
@@ -31,12 +31,12 @@ ls -l *.cdat
 # Can be quicker for some estimators if the smaller file 
 # is set as the first "DATA" set.
 
-NPERMS=${3:-1000}
+NPERMS=${3:-10000}
 NDATA=${4:-1000}
 NMC=${5:-1000}
-FIRSTSEED=${6:-153456}
+FIRSTSEED=${6:-123456}
 # Now specify statistic choice using Estimator enum with corresponding EstimatorNames string
-ESTIMATOR=${7:-Energy}
+ESTIMATOR=${7:-Energy2}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,ESTIMATOR) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
 time ./example ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
