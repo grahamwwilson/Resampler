@@ -1,7 +1,7 @@
 // MyBinFinder.h
 
 int MyBinFinder(double x, std::vector<double>& bins);
-int PairBin(std::pair<double,double> p, std::vector<double>& binsx1, std::vector<double>& binsx2, int icase=0);
+int PairBin(std::pair<double,double> p, std::vector<double>& binsx1, std::vector<double>& binsx2);
 int X1Bin(std::pair<double,double> p, std::vector<double>& binsx1);
 int X2Bin(std::pair<double,double> p, std::vector<double>& binsx2);
 
@@ -38,12 +38,13 @@ int MyBinFinder(double x, std::vector<double>& bins){
 
 // Three higher level methods using the (X1,X2) pair information
 
-int PairBin(std::pair<double,double> p, std::vector<double>& binsx1, std::vector<double>& binsx2, int icase=0){
+int PairBin(std::pair<double,double> p, std::vector<double>& binsx1, std::vector<double>& binsx2){
     auto x1 = p.first;
     auto x2 = p.second;
     int ibinx1 = MyBinFinder(x1, binsx1);
     int ibinx2 = MyBinFinder(x2, binsx2);
     int pairbin;
+    const int icase=0;
     if(icase ==0 ){
 // This is the convention previously used
        pairbin = 100*ibinx1 + ibinx2;

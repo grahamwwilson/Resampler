@@ -12,14 +12,14 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <ctime>
-//#include <cstdlib>      // std::rand, std::srand
-#include "MyStatistics.h"
+
 typedef std::mt19937 RandomNumberGenerator;
-//typedef std::ranlux24 RandomNumberGenerator;
 
 #include "MyOmp.h"                // OpenMP
 #include "EstimatorDefinitions.h" // Estimator enum, EstimatorNames and string->enum conversion function
-#include "MyFileHandler.h"
+#include "MyFileHandler.h"        // handle (x1,x2) .cdat files and xibin edge files
+#include "MyBinFinder.h"          // assignment of (x1,x2) values to bins
+#include "MyStatistics.h"
 
 int main(int argc, char *argv[]){
 
@@ -72,8 +72,12 @@ auto vdata = CreateX1X2PairVector("dataset1.cdat");
 auto vmc = CreateX1X2PairVector("dataset2.cdat");
 auto vdataECM = CreateECMVector(vdata);
 auto vdataEdiff = CreateEdiffVector(vdata);
+auto vdataX1 = CreateX1Vector(vdata);
+auto vdataX2 = CreateX2Vector(vdata);
 auto vmcECM = CreateECMVector(vmc);
 auto vmcEdiff = CreateEdiffVector(vmc);
+auto vmcX1 = CreateX1Vector(vmc);
+auto vmcX2 = CreateX2Vector(vmc);
 auto binsx1 = CreateBinVector("x1bins-100-1M-1-0.dat");
 auto binsx2 = CreateBinVector("x2bins-100-1M-1-0.dat");
 
@@ -97,6 +101,12 @@ for (auto it = vmc.begin(); it!=vmc.end(); ++it){
 }
 
 // Conduct two-sample KS tests (use all available events in samples)
+std::cout << " " << std::endl;
+std::cout << "Unbinned classic 2-sample KS Test of 1-d X1 distribution " << std::endl;
+double pKSX1 = MyTwoSampleKSTest(vdataX1,vmcX1);
+std::cout << " " << std::endl;
+std::cout << "Unbinned classic 2-sample KS Test of 1-d X2 distribution " << std::endl;
+double pKSX2 = MyTwoSampleKSTest(vdataX2,vmcX2);
 std::cout << " " << std::endl;
 std::cout << "Unbinned classic 2-sample KS Test of 1-d ECM distribution " << std::endl;
 double pKSECM = MyTwoSampleKSTest(vdataECM,vmcECM);
@@ -125,10 +135,10 @@ std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::en
 // 
 // We only need to do this for events labelled as data in the case of 
 // the MeanECM, MeanEdiff implementations (similar to Good 2000 Chapter 1) petri-dish example.
-
+//
 // NOTE: Adopt convention of Williams that larger value of 
 // each statistic labelled T, means worse agreement like a chi-squared value.
-
+//
 // Do the permutation test.
 // We randomly shuffle the pooled vector of length (NDATA+NMC) and 
 // call the first NDATA elements data.
@@ -154,13 +164,13 @@ for (unsigned int i=0; i<NPERMS; ++i){
    if( i!= 0) {
 
 // For reproducibility, especially with multi-threading, reseed the RNG for each permutation.
-     RandomNumberGenerator rng(myseed + i);
+      RandomNumberGenerator rng(myseed + i);
 
 // Now we randomly shuffle the copy to get a permutation instance. 
 // This is the C++11 shuffle rather than random_shuffle. 
 // RNG used is the Mersenne-Twister
 // https://stackoverflow.com/questions/6926433/how-to-shuffle-a-stdvector 
-     std::shuffle ( std::begin(vpoolcopy), std::end(vpoolcopy), rng );
+      std::shuffle ( std::begin(vpoolcopy), std::end(vpoolcopy), rng );
    }
    
 // The unshuffled copy (i = 0) that is not affected by the above if clause 
@@ -190,6 +200,18 @@ for (unsigned int i=0; i<NPERMS; ++i){
       const int itype=2;
       Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }
+   else if (estimator == ChiSquaredX1){
+      Ti = MyTwoSampleChisq(NDATA, vpoolcopy, binsx1, binsx2,1);
+   }
+   else if (estimator == ChiSquaredX2){
+      Ti = MyTwoSampleChisq(NDATA, vpoolcopy, binsx1, binsx2,2);
+   }
+   else if (estimator == ChiSquaredX1X2){
+      Ti = MyTwoSampleChisq(NDATA, vpoolcopy, binsx1, binsx2,3);
+   }
+   else if (estimator == ChiSquaredX1PX2){
+      Ti = MyTwoSampleChisq(NDATA, vpoolcopy, binsx1, binsx2,4);
+   }         
  
    vResult[i] = Ti;
 
@@ -203,20 +225,20 @@ for (unsigned int i=0; i<NPERMS; ++i){
 }  // End of OpenMP parallel for
 
 double Tobs = vResult[0];
-
-std::cout << "Tobs: " <<  EstimatorNames[estimator] << std::fixed 
+std::cout << "Tobs: " <<  EstimatorNames[estimator] << " " << std::fixed 
           << std::setprecision(12) << std::setw(16) << Tobs << std::endl;
 
 // Now count tail events for the p-value estimate
 int ntail = 0;
-int ntrials = 0;
-for (unsigned int i=1; i<NPERMS; ++i){  //Intentionally exclude i=0 as that is the data observation
-   ntrials += 1;
-   if(vResult[i] >= Tobs)ntail +=1;  // Count events with statistic exceeding the correct data/MC partition.
+for (unsigned int i=1; i<NPERMS; ++i){  // Intentionally exclude i=0 as that is the data observation
+   if(vResult[i] >= Tobs)ntail +=1;     // Count events with statistic exceeding the correct data/MC partition.
 } 
 
-// See p518 of Bootstrap: Tim Hesterberg.
-double pvalue = double(ntail+1)/double(ntrials+1);
+int ntrials = NPERMS-1;    // the first one was used only for the actual experiment
+double pvalue = double(ntail)/double(ntrials);
+// No longer use convention from p518 of Bootstrap: Tim Hesterberg -> avoids reporting too aggressive 
+// pvalue in case of zero tail events, but yields a bias.
+// double pvalue = double(ntail+1)/double(ntrials+1);
 
 std::cout << "Empirical p-value (high tail probability) of " << pvalue 
           << " based on " << ntail << " of the " << ntrials 

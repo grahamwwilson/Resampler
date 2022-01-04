@@ -3,6 +3,8 @@
 std::vector<std::pair<double,double>> CreateX1X2PairVector(std::string filename);
 std::vector<double> CreateECMVector(std::vector<std::pair<double,double>>& v);
 std::vector<double> CreateEDiffVector(std::vector<std::pair<double,double>>& v);
+std::vector<double> CreateX1Vector(std::vector<std::pair<double,double>>& v);
+std::vector<double> CreateX2Vector(std::vector<std::pair<double,double>>& v);
 std::vector<double> CreateBinVector(std::string filename);
 
 std::vector<std::pair<double,double>> CreateX1X2PairVector(std::string filename){
@@ -70,3 +72,24 @@ std::vector<double> CreateEdiffVector(std::vector<std::pair<double,double>>& v){
    }
    return vout;    
 }
+
+std::vector<double> CreateX1Vector(std::vector<std::pair<double,double>>& v){
+
+   std::vector<double> vout;
+   for (auto it = v.begin(); it!=v.end(); ++it){
+       std::pair<double,double> thispair = *it;
+       vout.push_back(thispair.first);
+   }
+   return vout;    
+}
+
+std::vector<double> CreateX2Vector(std::vector<std::pair<double,double>>& v){
+
+   std::vector<double> vout;
+   for (auto it = v.begin(); it!=v.end(); ++it){
+       std::pair<double,double> thispair = *it;
+       vout.push_back(thispair.second);
+   }
+   return vout;    
+}
+

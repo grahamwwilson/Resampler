@@ -1,4 +1,5 @@
 #include <TMath.h>
+//#include "MyBinFinder.h"
 
 double MyStatisticECM(const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyStatisticEdiff(const int NDATA, std::vector<std::pair<double,double>>& vpool);
@@ -7,6 +8,8 @@ double MyPooledTwoSampleKSTest(const int n1, const int n2, std::vector<double>& 
 double MyPooledTwoSampleKSTest(const int itype, const int n1, const int n2, std::vector<std::pair<double,double>>& v);
 double MyEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v);
 double MySecondEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v);
+double MyTwoSampleChisq(const int N, std::vector<std::pair<double,double>>& v,
+                        std::vector<double>& binsx1, std::vector<double>& binsx2, const int icase);
 
 double MyEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v){
 
@@ -442,3 +445,95 @@ else{
 return pvalue2;  
 
 }
+
+double MyTwoSampleChisq(const int N, std::vector<std::pair<double,double>>& v, 
+                        std::vector<double>& binsx1, std::vector<double>& binsx2, const int icase){
+
+// First separate the pooled vector into the two separate ones of 
+// length N for data and of length M for MC
+std::vector<std::pair<double,double>> v1,v2;
+v1.assign(v.begin(), v.begin()+N);                //"DATA"
+v2.assign(v.begin()+N, v.end());                  //"MC"
+unsigned int M = unsigned(v2.size());
+
+const int NX=100;
+const int NY=100;
+const int NXY=10000;
+
+// Bin count vectors - hopefully initialized to zero.
+std::vector<int> v1countsX(NX), v1countsY(NY), v1countsXY(NXY);
+std::vector<int> v2countsX(NX), v2countsY(NY), v2countsXY(NXY);
+
+// Loop through the vectors doing the various counts
+for (auto it = v1.begin(); it!= v1.end(); ++it) { 
+    std::pair<double,double> pair = *it;
+    int ix = X1Bin(pair, binsx1);
+    int iy = X2Bin(pair, binsx2);
+    int ixy = 100*ix + iy;
+    v1countsX[ix]++;
+    v1countsY[iy]++;
+    v1countsXY[ixy]++; 
+}
+
+for (auto it = v2.begin(); it!= v2.end(); ++it) { 
+    std::pair<double,double> pair = *it;
+    int ix = X1Bin(pair, binsx1);
+    int iy = X2Bin(pair, binsx2);
+    int ixy = 100*ix + iy;
+    v2countsX[ix]++;
+    v2countsY[iy]++;
+    v2countsXY[ixy]++; 
+}
+
+double chisqx=0.0;
+double chisqy=0.0;
+double chisqxy=0.0;
+int nbinsx=0;
+int nbinsy=0;
+int nbinsxy=0;
+
+for (unsigned int i=0; i<NX; ++i){
+   double dev = v1countsX[i] - v2countsX[i];
+   double var = v1countsX[i] + v2countsX[i];
+   if(var > 0.5){
+      double chisq = dev*dev/var;   
+      chisqx += chisq;
+      nbinsx++;
+   }
+}
+
+for (unsigned int i=0; i<NY; ++i){
+   double dev = v1countsY[i] - v2countsY[i];
+   double var = v1countsY[i] + v2countsY[i];
+   if(var > 0.5){
+      double chisq = dev*dev/var;
+      chisqy += chisq;
+      nbinsy++;
+   }
+}
+
+for (unsigned int i=0; i<NXY; ++i){
+   double dev = v1countsXY[i] - v2countsXY[i];
+   double var = v1countsXY[i] + v2countsXY[i];
+   if(var > 0.5){
+      double chisq = dev*dev/var;
+      chisqxy += chisq;
+      nbinsxy++;
+   }
+}
+
+std::cout << "MyTwoSampleChisq evaluates to " 
+          << std::fixed << std::setprecision(12)
+          << " x: " << chisqx << " y: " << chisqy << " xy: " << chisqxy << std::endl;
+std::cout << "based on " << nbinsx << " " << nbinsy << " " << nbinsxy << " bins " <<std::endl;
+
+double value = 0.0;
+if(icase==1)value=chisqx;
+if(icase==2)value=chisqy;
+if(icase==3)value=chisqxy;
+if(icase==4)value=chisqx + chisqy;
+
+return value;
+
+}
+
