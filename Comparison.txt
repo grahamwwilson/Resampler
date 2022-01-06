@@ -1,0 +1,26 @@
+Compare GP Run5 (171,349 events) with GP Run7 (156,231 events)
+--------------------------------------------------------------
+
+KS test approximate p-values.
+
+X1 KS test:       0.1942
+X2 KS test:       0.0027
+ECM KS test:      0.7113
+Ediff KS test:    0.2795
+
+Randomization test p-values with 10,000 trials (identical seeds).
+
+MeanECM:          0.0625
+MeanEdiff:        0.8793
+MeanX1:           0.3600
+MeanX2:           0.0254
+KSX1:             0.1976    (Agrees with above)
+KSX2:             0.0027           "
+KSECM:            0.7061           "
+KSEdiff:          0.2805           "
+ChiSquaredX1:     0.0001
+ChiSquaredX2:     0.0001
+ChiSquaredX1X2:   0.0310
+ChiSquaredX1+X2:  0.0001
+
+Conclusion: The two samples are NOT statistically consistent.

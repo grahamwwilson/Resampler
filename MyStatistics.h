@@ -3,6 +3,7 @@
 //#include "MyBinFinder.h"
 
 std::pair<double,double> MyMoments(std::vector<double>& v);
+double MyMeanStatistic(const int itype, const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyStatisticECM(const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyStatisticEdiff(const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyTwoSampleKSTest(const int NDATA, const int NMC, std::vector<double>& v1, std::vector<double>& v2);
@@ -178,6 +179,46 @@ std::cout << "MySecondEnergyStatistic evaluates to "
           << value << " xx: " << valuexx << " xy: " << valuexy << " yy: " << valueyy << std::endl;
  
 return value; 
+}
+
+double MyMeanStatistic(const int itype, const int NDATA, std::vector<std::pair<double,double>>& vpool){
+
+// Now calculate some statistic for the sample that addresses the question of 
+// whether the distribution of the pairs labelled as data is consistent with the 
+// distribution of pairs labelled as MC
+// For starters let's look at <xdata> where we use sqrt(x1*x2) as 
+// the quantity of interest and restrict to the actual data events.
+
+int ncheck = 0;
+double T=0.0;
+for (auto it = vpool.begin(); it!= vpool.begin() + NDATA; ++it){
+   auto thispair = *it;
+   auto x1 = thispair.first;
+   auto x2 = thispair.second;
+   if(itype==1){
+      T += sqrt(x1*x2);
+   }
+   else if(itype==2){
+      T += (x1 - x2);
+   }
+   else if(itype==3){
+      T += x1;
+   }
+   else{
+      T += x2;
+   }
+   ncheck +=1;
+}
+
+double Tref = 1.0;
+if(itype == 2)Tref = 0.0;
+T = T/double(NDATA);
+T = 100.0*(T - Tref);  // difference from reference value in per cent units
+
+std::cout << "Mean Statistic (in %) for data labels for case " << itype << " " << std::fixed 
+          << std::setprecision(12) << std::setw(16) <<T << " based on " << ncheck << " events " << std::endl;
+          
+return T;
 }
 
 double MyStatisticECM(const int NDATA, std::vector<std::pair<double,double>>& vpool){
@@ -372,6 +413,8 @@ double MyPooledTwoSampleKSTest(const int itype, const int n1, const int n2, std:
 // Implement in a similar way to EnergyStatistic etc using the pooled sample, v, and using the pairs.
 // itype = 1 => ECM
 // itype = 2 => Ediff
+// itype = 3 => x1
+// itype = 4 => x2
 // This is if anything a bit more inefficient, but is more easily integrated with the other methods
 
 // Similar code to kstests.h in NR3, p738
@@ -399,20 +442,34 @@ for (it = p1.begin(); it!=p1.end(); ++it){
    if(itype == 1){
       v1.push_back(sqrt(x1*x2));
    }
+   else if(itype == 2){
+      v1.push_back(x1-x2);
+   }
+   else if (itype == 3){
+      v1.push_back(x1);
+   }
    else{
-      v1.push_back(x1-x2);   
+      v1.push_back(x2);
    }
 }
 for (it = p2.begin(); it!=p2.end(); ++it){
    std::pair<double,double> thispair = *it;
    double x1 = thispair.first;
    double x2 = thispair.second;
+   
    if(itype == 1){
       v2.push_back(sqrt(x1*x2));
    }
+   else if(itype == 2){
+      v2.push_back(x1-x2);
+   }
+   else if (itype == 3){
+      v2.push_back(x1);
+   }
    else{
-      v2.push_back(x1-x2);   
+      v2.push_back(x2);
    }   
+   
 }
 
 std::sort(v1.begin(),v1.end());
@@ -479,11 +536,17 @@ v1.assign(v.begin(), v.begin()+N);                //"DATA"
 v2.assign(v.begin()+N, v.end());                  //"MC"
 unsigned int M = unsigned(v2.size());
 
-const int NX=100;
-const int NY=100;
-const int NXY=10000;
-const double K1=sqrt(double(M)/double(N));
-const double K2=1.0/K1;
+const int NX = 100;
+const int NY = 100;
+const int NXY = 10000;
+
+// Incorporate normalization for case where N != M.
+// See https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
+// and also equation 14.3.3 in Numerical Recipes 3rd edition.
+const double K1 = sqrt(double(M)/double(N));
+const double K2 = 1.0/K1;
+
+const bool LDEBUG = false;
 
 // Bin count vectors - hopefully initialized to zero.
 std::vector<int> v1countsX(NX), v1countsY(NY), v1countsXY(NXY);
@@ -517,9 +580,11 @@ int nbinsx=0;
 int nbinsy=0;
 int nbinsxy=0;
 
-// incorporate normalization for case where N != M.
-// See https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
 
+
+if(LDEBUG){
+  std::cout << "Debugging " << std::endl;   
+}
 for (unsigned int i=0; i<NX; ++i){
    double dev = K1*v1countsX[i] - K2*v2countsX[i];
    double var = v1countsX[i] + v2countsX[i];
@@ -527,6 +592,7 @@ for (unsigned int i=0; i<NX; ++i){
       double chisq = dev*dev/var;   
       chisqx += chisq;
       nbinsx++;
+      if(LDEBUG)std::cout << "ChisqX1 " << i << " " << K1*v1countsX[i] << " " << K2*v2countsX[i] << " " << dev << " " << chisq << " " << chisqx << std::endl;
    }
 }
 
@@ -537,6 +603,7 @@ for (unsigned int i=0; i<NY; ++i){
       double chisq = dev*dev/var;
       chisqy += chisq;
       nbinsy++;
+      if(LDEBUG)std::cout << "ChisqX2 " << i << " " << K1*v1countsY[i] << " " << K2*v2countsY[i] << " " << dev << " " << chisq << " " << chisqy << std::endl;      
    }
 }
 
@@ -560,6 +627,8 @@ if(icase==1)value=chisqx;
 if(icase==2)value=chisqy;
 if(icase==3)value=chisqxy;
 if(icase==4)value=chisqx + chisqy;
+
+
 
 return value;
 

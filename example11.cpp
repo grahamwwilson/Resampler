@@ -181,11 +181,17 @@ for (unsigned int i=0; i<NPERMS; ++i){
 // I suspect histogramming is not thread safe - still need to test it.
  
    if(estimator == MeanECM){     
-      Ti = MyStatisticECM(NDATA,vpoolcopy);
+      Ti = MyMeanStatistic(1,NDATA,vpoolcopy);
    }
    else if (estimator == MeanEdiff){
-      Ti = MyStatisticEdiff(NDATA,vpoolcopy);   
+      Ti = MyMeanStatistic(2,NDATA,vpoolcopy);   
    }
+   else if (estimator == MeanX1){
+      Ti = MyMeanStatistic(3,NDATA,vpoolcopy);   
+   }
+   else if (estimator == MeanX2){
+      Ti = MyMeanStatistic(4,NDATA,vpoolcopy);   
+   }   
    else if (estimator == Energy){
       Ti = MyEnergyStatistic(NDATA,vpoolcopy);
    }
@@ -200,6 +206,14 @@ for (unsigned int i=0; i<NPERMS; ++i){
       const int itype=2;
       Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
    }
+   else if (estimator == KSX1){
+      const int itype=3;
+      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
+   }
+   else if (estimator == KSX2){
+      const int itype=4;
+      Ti = 1.0 - MyPooledTwoSampleKSTest(itype,NDATA,NMC,vpoolcopy);
+   }   
    else if (estimator == ChiSquaredX1){
       Ti = MyTwoSampleChisq(NDATA, vpoolcopy, binsx1, binsx2,1);
    }
@@ -254,8 +268,9 @@ double pvalueTest = double(ntail+1)/double(ntrials+1); // This p-value guarantee
 //  permutation).
 
 std::cout << "Test p-value (high tail probability) of " << pvalueTest 
-          << " based on " << ntail << " significant tests of the " << ntrials 
-          << " trial permutations + the observation" << std::endl; 
+          << " based on " << ntail << " pool permutations as significant as the observation " << std::endl;
+std::cout << "from the " << ntrials 
+          << " pool permutations (+ the observation)" << std::endl; 
 
 // Define the Canvas
 TCanvas *c1 = new TCanvas("c1", "canvas", 800, 600);

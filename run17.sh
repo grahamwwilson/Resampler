@@ -13,17 +13,9 @@ echo 'OMP_NUM_THREADS: '$OMP_NUM_THREADS
 g++ -g -O1 -fopenmp -o example example11.cpp `root-config --cflags --glibs`
 
 # Set up symbolic links used in code.
-VDATA=${1:-1}
-VMC=${2:-4}
-
-echo 'VDATA '${VDATA}
-echo 'VMC   '${VMC}
 
 rm dataset1.cdat
 rm dataset2.cdat
-
-#ln -s datasubset${VDATA}.cdat dataset1.cdat
-#ln -s mcsubset${VMC}.cdat dataset2.cdat
 
 ln -s datafile1.cdat dataset1.cdat
 ln -s datafile2.cdat dataset2.cdat
@@ -34,12 +26,12 @@ ls -l *.cdat
 # Can be quicker for some estimators if the smaller file 
 # is set as the first "DATA" set.
 
-NPERMS=${3:-100000}
-NDATA=${4:-171349}
-NMC=${5:-156231}
-FIRSTSEED=${6:-213456}
+ESTIMATOR=${1:-ChiSquaredX1}
+NPERMS=${2:-10000}
+NDATA=${3:-171349}
+NMC=${4:-156231}
+FIRSTSEED=${5:-213456}
 # Now specify statistic choice using Estimator enum with corresponding EstimatorNames string
-ESTIMATOR=${7:-ChiSquaredX1X2}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,ESTIMATOR) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
 time ./example ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
