@@ -23,51 +23,10 @@ or Poisson likelihood including incorporation of some convolution integrals.
 Current test metrics and more details are in Tests.txt
 
 ## Log
-This is more a log of the developments. Each example is 
-turned into a distinct version as they acquire more functionality.
+Log of old developments is in OldREADME.md
 
-## example.cpp
-reads in a couple of files and makes plots.
+## example11.cpp
+Latest version. Includes 14 different estimator choices.
+See run17.sh for an example of how to run.
 
-## example2.cpp
-First real implementation of a simple mean-based 
-permutation test to test whether the "data" distribution is consistent with 
-the "MC" distribution using a particular test statistic. Currently 
-use mean ECM as statistic.
-
-## example3.cpp
-Alternatively use mean pz as statistic.
-
-## example4.cpp
-Choose between ECM offset and pz as statistic
-Include KS tests for both of these 1-d distributions.
-
-## example5.cpp and run2.sh
-Integrate statistic choice for permutation test into the script.
-
-## example6.cpp and run4.sh
-Change dataset names to be more generic and do data to data comparisons here.
-
-## example6.cpp and run5.sh
-Now also include permutation test for 1-d ECM KS test - more as a verification/validation 
-of the permutation method in the context of a statistic with well known properties.
-
-## example7.cpp and run7.sh
-First implementation of energy statistic. Rather slow as expected 
-given N^2 complexity on even the smallest problem size currently considered. 
-About 16 minutes per permutation on laptop with Run5/Run7 comparison 
-with about about 160k events in each sample.
-Room for optimization/parallelization/batchification.
-
-## randomize.cpp and randomize.sh
-Extract random subset from a .cdat file.
-
-## example8.cpp
-Implement OpenMP parallelization of the permutation test.
-Execution time for 9999 permutations of ICHOICE=4 
-with NxM= 1000*1000 is 15.5s with 12 threads on Ubuntu laptop.
-Standard serial compilation took 356s. Some of this may be the 
-compiler optimization level. Redo with the same O1 optimization => 111.2s.
-So OpenMP speed-up of 7.2, and speed-up factor of 23 wrt yesterday.
-The optimization part looks like a factor of 3.2.
-O1 is minimal optimization - so may be some room for improvement here too.
+Latest comparisons are in Comparison.txt.
