@@ -119,14 +119,14 @@ std::cout << " " << std::endl;
 // (Be careful about taking only a subset of GP files, as they are often sorted by collision time so will not be 
 //  a representative sub-sample from the parent distribution.)
 std::vector<std::pair<double,double>> vpool;
-for (auto it = vdata.begin(); it != vdata.begin() + NDATA; ++it){
-   vpool.push_back(*it);
-}
-// std::sort(vpool.begin(),vpool.end()); // Sort the data part ?
-for (auto it = vmc.begin(); it != vmc.begin() + NMC; ++it){
-   vpool.push_back(*it);
-}
+vpool.assign(vdata.begin(), vdata.begin()+NDATA);                //Copy NDATA "DATA" elements to start of vpool vector 
+vpool.insert(vpool.end(), vmc.begin(), vmc.begin() + NMC);       //Append NMC "MC" elements to end of vpool vector
 std::cout << "Chosen pooled vector of pairs has size " << vpool.size()<< std::endl;
+// For convenience also make X1 and X2 vectors of the pooled sample
+auto vpoolX1 = CreateX1Vector(vpool);
+auto vpoolX2 = CreateX2Vector(vpool);
+auto pX1 = MyMoments(vpoolX1);
+auto pX2 = MyMoments(vpoolX2);
 
 // Now calculate some statistic for the sample that addresses the question of 
 // whether the distribution for events labelled as data is consistent with the 
@@ -235,14 +235,27 @@ for (unsigned int i=1; i<NPERMS; ++i){  // Intentionally exclude i=0 as that is 
 } 
 
 int ntrials = NPERMS-1;    // the first one was used only for the actual experiment
-double pvalue = double(ntail)/double(ntrials);
-// No longer use convention from p518 of Bootstrap: Tim Hesterberg -> avoids reporting too aggressive 
-// pvalue in case of zero tail events, but yields a bias.
-// double pvalue = double(ntail+1)/double(ntrials+1);
+double pvalueEstimate = double(ntail)/double(ntrials); // This is the unbiased p-value estimate from ntrials permutations
+double pvalueTest = double(ntail+1)/double(ntrials+1); // This p-value guarantees conformity with stat. testing orthodoxy.
+// pvalueTest is preferred in the permutation test/randomization test literature since it satisfies 
+// the General Validity Criterion stated in Randomization Tests, Edgington and Onghena (2007) p36 for decision making,
+// "A statistical testing procedure is valid if, under the null hypothesis, 
+//  the probability of a P-value as small as P is no greater than P, for any P" 
+// To see how this matters, it is sufficient to consider the case of an exact test, where 
+// the p-value associated with the observation must be at least 1/Nperms, 
+// but in performing an ART (approximate randomization test) it is quite 
+// feasible to measure a p-value of exactly zero if one does not 
+// include the +1 numerator and denominator corrections.
+// (I still don't truly appreciate the concern given that pvalueEstimate would be an unbiased estimate).
+// Maybe the Noreen book will clarify this.
+// Ah-hah, if one obtains a p-value of 0, then this contradicts the above, because the 
+// probability of a p-value as small as 0 is NOT no greater than 0 given that it has actually occurred.
+// (This could also be an artefact of an algorithm that does not allow for random resampling of the original 
+//  permutation).
 
-std::cout << "Empirical p-value (high tail probability) of " << pvalue 
-          << " based on " << ntail << " of the " << ntrials 
-          << " trial permutations " << std::endl; 
+std::cout << "Test p-value (high tail probability) of " << pvalueTest 
+          << " based on " << ntail << " significant tests of the " << ntrials 
+          << " trial permutations + the observation" << std::endl; 
 
 // Define the Canvas
 TCanvas *c1 = new TCanvas("c1", "canvas", 800, 600);

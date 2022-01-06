@@ -1,6 +1,8 @@
 #include <TMath.h>
+#include <numeric>
 //#include "MyBinFinder.h"
 
+std::pair<double,double> MyMoments(std::vector<double>& v);
 double MyStatisticECM(const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyStatisticEdiff(const int NDATA, std::vector<std::pair<double,double>>& vpool);
 double MyTwoSampleKSTest(const int NDATA, const int NMC, std::vector<double>& v1, std::vector<double>& v2);
@@ -11,6 +13,27 @@ double MySecondEnergyStatistic(const int N, std::vector<std::pair<double,double>
 double MyTwoSampleChisq(const int N, std::vector<std::pair<double,double>>& v,
                         std::vector<double>& binsx1, std::vector<double>& binsx2, const int icase);
 
+std::pair<double,double> MyMoments(std::vector<double>& v){
+// https://stackoverflow.com/questions/7616511/calculate-mean-and-standard-deviation-from-a-vector-of-samples-in-c-using-boos
+
+  double N = double(unsigned(v.size()));
+
+  double sum = std::accumulate(v.begin(), v.end(), 0.0);
+  double mean = sum / N;  
+
+  double sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+  double rms  = std::sqrt( (sq_sum - N* mean * mean)/(N-1.0) );  
+ 
+  std::cout << "MyMoments evaluates to " 
+          << std::fixed << std::setprecision(12)
+          << " mean: " << mean << " rms: " << rms << std::endl; 
+ 
+  std::pair<double,double> pair;
+  pair = std::make_pair(mean, rms);
+  
+  return pair;
+ 
+}
 double MyEnergyStatistic(const int N, std::vector<std::pair<double,double>>& v){
 
 // First separate the pooled vector into the two separate ones of 
@@ -459,6 +482,8 @@ unsigned int M = unsigned(v2.size());
 const int NX=100;
 const int NY=100;
 const int NXY=10000;
+const double K1=sqrt(double(M)/double(N));
+const double K2=1.0/K1;
 
 // Bin count vectors - hopefully initialized to zero.
 std::vector<int> v1countsX(NX), v1countsY(NY), v1countsXY(NXY);
@@ -492,8 +517,11 @@ int nbinsx=0;
 int nbinsy=0;
 int nbinsxy=0;
 
+// incorporate normalization for case where N != M.
+// See https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
+
 for (unsigned int i=0; i<NX; ++i){
-   double dev = v1countsX[i] - v2countsX[i];
+   double dev = K1*v1countsX[i] - K2*v2countsX[i];
    double var = v1countsX[i] + v2countsX[i];
    if(var > 0.5){
       double chisq = dev*dev/var;   
@@ -503,7 +531,7 @@ for (unsigned int i=0; i<NX; ++i){
 }
 
 for (unsigned int i=0; i<NY; ++i){
-   double dev = v1countsY[i] - v2countsY[i];
+   double dev = K1*v1countsY[i] - K2*v2countsY[i];
    double var = v1countsY[i] + v2countsY[i];
    if(var > 0.5){
       double chisq = dev*dev/var;
@@ -513,7 +541,7 @@ for (unsigned int i=0; i<NY; ++i){
 }
 
 for (unsigned int i=0; i<NXY; ++i){
-   double dev = v1countsXY[i] - v2countsXY[i];
+   double dev = K1*v1countsXY[i] - K2*v2countsXY[i];
    double var = v1countsXY[i] + v2countsXY[i];
    if(var > 0.5){
       double chisq = dev*dev/var;

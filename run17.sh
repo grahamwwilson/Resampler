@@ -22,8 +22,11 @@ echo 'VMC   '${VMC}
 rm dataset1.cdat
 rm dataset2.cdat
 
-ln -s datasubset${VDATA}.cdat dataset1.cdat
-ln -s mcsubset${VMC}.cdat dataset2.cdat
+#ln -s datasubset${VDATA}.cdat dataset1.cdat
+#ln -s mcsubset${VMC}.cdat dataset2.cdat
+
+ln -s datafile1.cdat dataset1.cdat
+ln -s datafile2.cdat dataset2.cdat
 
 # Check symbolic links
 ls -l *.cdat
@@ -31,12 +34,12 @@ ls -l *.cdat
 # Can be quicker for some estimators if the smaller file 
 # is set as the first "DATA" set.
 
-NPERMS=${3:-10000}
-NDATA=${4:-1000}
-NMC=${5:-1000}
-FIRSTSEED=${6:-123456}
+NPERMS=${3:-100000}
+NDATA=${4:-171349}
+NMC=${5:-156231}
+FIRSTSEED=${6:-213456}
 # Now specify statistic choice using Estimator enum with corresponding EstimatorNames string
-ESTIMATOR=${7:-ChiSquaredX1+X2}
+ESTIMATOR=${7:-ChiSquaredX1X2}
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,ESTIMATOR) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
 time ./example ${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
