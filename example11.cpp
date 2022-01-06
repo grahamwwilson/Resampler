@@ -62,10 +62,10 @@ std::cout << "Max elements that can be inserted into a vector of doubles having 
 TFile* f = (TFile*) new TFile("histos_Ediff.root","recreate");
 TH1D* histdata = (TH1D*) new TH1D("histdata", "histdata", 1100, 0.0, 1.1);
 TH1D* histmc = (TH1D*) new TH1D("histmc", "histmc", 1100, 0.0, 1.1);
-TH1D* h = (TH1D*) new TH1D("h", "h", 1000, -1.15, -1.05);
-TH1D* hpz = (TH1D*) new TH1D("hpz", "hpz", 1000, -0.05, 0.05);
-TH1D* hKSpval = (TH1D*) new TH1D("hKSpval","hKSpval",1000,0.0,1.0);
-TH1D* hKSqval = (TH1D*) new TH1D("hKSqval","hKSqval",1000,0.0,1.0);
+TH1D* hX1data = (TH1D*) new TH1D("hX1data","hX1data",100,-0.5,99.5);
+TH1D* hX2data = (TH1D*) new TH1D("hX2data","hX2data",100,-0.5,99.5);
+TH1D* hX1mc = (TH1D*) new TH1D("hX1mc","hX1mc",100,-0.5,99.5);
+TH1D* hX2mc = (TH1D*) new TH1D("hX2mc","hX2mc",100,-0.5,99.5);
 
 // Define input data sets
 auto vdata = CreateX1X2PairVector("dataset1.cdat");
@@ -91,13 +91,21 @@ for (auto it = vdata.begin(); it!=vdata.end(); ++it){
    auto thispair = *it;
    auto x1 = thispair.first;
    auto x2 = thispair.second;
+   auto ix1 = X1Bin(thispair, binsx1);
+   auto ix2 = X2Bin(thispair, binsx2);
    histdata->Fill(sqrt(x1*x2));
+   hX1data->Fill(ix1);
+   hX2data->Fill(ix2);   
 }
 for (auto it = vmc.begin(); it!=vmc.end(); ++it){
    auto thispair = *it;
    auto x1 = thispair.first;
    auto x2 = thispair.second;
+   auto ix1 = X1Bin(thispair, binsx1);
+   auto ix2 = X2Bin(thispair, binsx2);   
    histmc->Fill(sqrt(x1*x2));
+   hX1mc->Fill(ix1);
+   hX2mc->Fill(ix2);      
 }
 
 // Conduct two-sample KS tests (use all available events in samples)
@@ -276,8 +284,6 @@ std::cout << "from the " << ntrials
 TCanvas *c1 = new TCanvas("c1", "canvas", 800, 600);
 histdata->Draw();
 histmc->Draw();
-h->Draw();
-hpz->Draw();
 f->Write();
 
 int stop_time = clock();
