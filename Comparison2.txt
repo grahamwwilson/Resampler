@@ -1,0 +1,35 @@
+Compare GP Run5 (171,349 events) with mcfile1 (1M events)
+---------------------------------------------------------
+
+KS test approximate p-values.
+
+X1 KS test:       0.0369
+X2 KS test:       0.4245
+ECM KS test:      0.2713
+Ediff KS test:    0.5674
+
+Randomization test p-values with 1,000 trials (identical seeds).
+
+MeanECM:          0.301
+MeanEdiff:        0.721
+MeanX1:           0.512
+MeanX2:           0.227
+KSX1:             0.043    (Agrees with above)
+KSX2:             0.417             "
+KSECM:            0.271             "
+KSEdiff:          0.574             "
+ChiSquaredX1:     0.001
+ChiSquaredX2:     0.001
+ChiSquaredX1X2:   0.260
+ChiSquaredX1+X2:  0.001
+
+Conclusion: The two samples are NOT statistically consistent.
+Again the deviations imply that there is more scatter in the data than 
+expected, but the overall shape is rather good.
+
+Maybe events not being entirely independent in Guinea-PIG? 
+
+Maybe increase the number of beam particles provided? 
+Or find some way to better characterize the issue. Maybe related 
+to number of slices?
+

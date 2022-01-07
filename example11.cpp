@@ -62,10 +62,10 @@ std::cout << "Max elements that can be inserted into a vector of doubles having 
 TFile* f = (TFile*) new TFile("histos_Ediff.root","recreate");
 TH1D* histdata = (TH1D*) new TH1D("histdata", "histdata", 1100, 0.0, 1.1);
 TH1D* histmc = (TH1D*) new TH1D("histmc", "histmc", 1100, 0.0, 1.1);
-TH1D* hX1data = (TH1D*) new TH1D("hX1data","hX1data",100,-0.5,99.5);
-TH1D* hX2data = (TH1D*) new TH1D("hX2data","hX2data",100,-0.5,99.5);
-TH1D* hX1mc = (TH1D*) new TH1D("hX1mc","hX1mc",100,-0.5,99.5);
-TH1D* hX2mc = (TH1D*) new TH1D("hX2mc","hX2mc",100,-0.5,99.5);
+TH1D* hX1data = (TH1D*) new TH1D("hX1data","X1 distribution; Equi-probable X1 bin; Events per bin",100,-0.5,99.5);
+TH1D* hX2data = (TH1D*) new TH1D("hX2data","X2 distribution; Equi-probable X2 bin; Events per bin",100,-0.5,99.5);
+TH1D* hX1mc = (TH1D*) new TH1D("hX1mc","X1 distribution; Equi-probable X1 bin; Events per bin",100,-0.5,99.5);
+TH1D* hX2mc = (TH1D*) new TH1D("hX2mc","X2 distribution; Equi-probable X2 bin; Events per bin",100,-0.5,99.5);
 
 // Define input data sets
 auto vdata = CreateX1X2PairVector("dataset1.cdat");
