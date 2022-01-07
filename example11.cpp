@@ -275,7 +275,7 @@ double pvalueTest = double(ntail+1)/double(ntrials+1); // This p-value guarantee
 // (This could also be an artefact of an algorithm that does not allow for random resampling of the original 
 //  permutation).
 
-std::cout << "Test p-value (high tail probability) of " << pvalueTest 
+std::cout << "Test p-value (1-sided high tail probability) of " << pvalueTest 
           << " based on " << ntail << " pool permutations as significant as the observation " << std::endl;
 std::cout << "from the " << ntrials 
           << " pool permutations (+ the observation)" << std::endl; 

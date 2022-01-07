@@ -17,9 +17,9 @@ g++ -g -O1 -fopenmp -o example example11.cpp `root-config --cflags --glibs`
 rm dataset1.cdat
 rm dataset2.cdat
 
-ln -s datafile1.cdat dataset1.cdat
-#ln -s mcfile1.cdat dataset2.cdat
-ln -s mcfile2.cdat dataset2.cdat
+ln -s datafile2.cdat dataset1.cdat
+ln -s mcfile1.cdat dataset2.cdat
+#ln -s mcfile2.cdat dataset2.cdat
 
 # Check symbolic links
 ls -l *.cdat
@@ -29,9 +29,9 @@ ls -l *.cdat
 
 ESTIMATOR=${1:-ChiSquaredX1}
 NPERMS=${2:-1000}
-NDATA=${3:-171349}
-NMC=${4:-10000000}
-FIRSTSEED=${5:-913456}
+NDATA=${3:-156231}
+NMC=${4:-1000000}
+FIRSTSEED=${5:-813456}
 # Now specify statistic choice using Estimator enum with corresponding EstimatorNames string
 
 echo 'Parameters set to (NDATA,NMC,NPERMS,FIRSTSEED,ESTIMATOR) '${NDATA} ${NMC} ${NPERMS} ${FIRSTSEED} ${ESTIMATOR}
