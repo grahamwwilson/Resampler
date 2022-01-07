@@ -424,6 +424,9 @@ double MyPooledTwoSampleKSTest(const int itype, const int n1, const int n2, std:
 // Assumes that v.size() = n1+n2
 // Try using assign method highlighted here https://www.geeksforgeeks.org/ways-copy-vector-c/
 
+const int NTYPES = 4;
+const std::string TypeNames[NTYPES] = { "ECM", "Ediff", "X1", "X2" };
+
 double pvalue2;
 unsigned int N = unsigned(v.size());
 
@@ -475,11 +478,11 @@ for (it = p2.begin(); it!=p2.end(); ++it){
 std::sort(v1.begin(),v1.end());
 std::sort(v2.begin(),v2.end());
 
-std::cout << "after sorts " << std::endl;
-std::cout << " v1[0] " << v1[0] << std::endl;
-std::cout << " v1[n1-1] " << v1[n1-1] << std::endl;
-std::cout << " v2[0] " << v2[0] << std::endl;
-std::cout << " v2[n2-1] " << v2[n2-1] << std::endl;
+//std::cout << "after sorts " << std::endl;
+//std::cout << " v1[0] " << v1[0] << std::endl;
+//std::cout << " v1[n1-1] " << v1[n1-1] << std::endl;
+//std::cout << " v2[0] " << v2[0] << std::endl;
+//std::cout << " v2[n2-1] " << v2[n2-1] << std::endl;
 
 double en1 = double(n1);
 double en2 = double(n2);
@@ -490,6 +493,7 @@ int j1 = 0;
 int j2 = 0;
 double d1,d2,dt;
 double en;
+double d1sup,d2sup;
 
 while (j1 < n1 && j2 < n2) {
    if ( ( d1 = v1[j1] ) <= ( d2 = v2[j2] ) )
@@ -500,7 +504,11 @@ while (j1 < n1 && j2 < n2) {
        do
           fn2 = ++j2/en2;
        while ( j2 < n2 && d2 == v2[j2]);
-   if ( (dt=abs(fn2-fn1)) > d) d = dt;     
+   if ( (dt=abs(fn2-fn1)) > d) {
+      d = dt;
+      d1sup = d1;
+      d2sup = d2;
+   }   
 }  
 
 en = sqrt(en1*en2/(en1+en2));
@@ -509,9 +517,11 @@ double z = en*d;                         // Asymptotic case
 double pvalue1 = TMath::KolmogorovProb(z);
 pvalue2 = TMath::KolmogorovProb(dp);
 
-std::cout << "Sample sizes:                " << n1 << " " << n2 << std::endl;
+std::cout << " " << std::endl;
+std::cout << "KS Test for " << TypeNames[itype-1] << " with sample sizes:   " << n1 << " " << n2 << std::endl;
 std::cout << "Effective number of points:  " << en*en << std::endl;
 std::cout << "KS Test results. Dobs:       " << d << std::endl;
+std::cout << "Occurring at abscissae:      " << d1sup << " " << d2sup << std::endl; 
 std::cout << "Pure z:                      " << z << std::endl;
 std::cout << "Stephens T*:                 " << dp << std::endl;
 std::cout << "Asymptotic p-value           " << pvalue1 << std::endl;
